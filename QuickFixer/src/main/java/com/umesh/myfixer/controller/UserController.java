@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -30,7 +30,13 @@ public class UserController {
 	@Autowired
 	AuthoritiesService authorityService;
 
-	@RequestMapping(value = "/webrst/userForm")
+	// PUBLIC_INTERFACE
+	@GetMapping(value = "/webrst/userForm")
+	/**
+	 * Render user create form.
+	 *
+	 * @return ModelAndView for the post-login content page with the user form displayed.
+	 */
 	public ModelAndView showUserForm() {
 		ModelAndView mav = new ModelAndView("postLoginContent");
 		mav.addObject("showUserForm", true);
@@ -38,13 +44,27 @@ public class UserController {
 		return mav;
 	}
 
-	@RequestMapping(value = "/webrst/saveUserData")
+	// PUBLIC_INTERFACE
+	@PostMapping(value = "/webrst/saveUserData")
+	/**
+	 * Create or update a user (state-changing action). CSRF token is required.
+	 *
+	 * @param user user model bound from form submission.
+	 * @return redirect to the user list page.
+	 */
 	public String saveUser(@ModelAttribute("user") User user) {
 		userService.save(user);
 		return "redirect:user";
 	}
 
-	@RequestMapping(value = "/webrst/editUser")
+	// PUBLIC_INTERFACE
+	@GetMapping(value = "/webrst/editUser")
+	/**
+	 * Render user edit form (read-only render).
+	 *
+	 * @param id user id.
+	 * @return ModelAndView for the post-login content page with the user form displayed.
+	 */
 	public ModelAndView editUser(@RequestParam("id") int id) {
 		ModelAndView mav = new ModelAndView("postLoginContent");
 		User user = userService.get(id);
@@ -53,20 +73,43 @@ public class UserController {
 		return mav;
 	}
 
-	@RequestMapping(value = "/webrst/deleteUser")
+	// PUBLIC_INTERFACE
+	@PostMapping(value = "/webrst/deleteUser")
+	/**
+	 * Delete a user (state-changing action). Uses POST to support classic JSP forms.
+	 * CSRF token is required.
+	 *
+	 * @param id user id.
+	 * @return redirect to the user list page.
+	 */
 	public String deleteUser(@RequestParam("id") int id) {
 		userService.delete(id);
 		return "redirect:user";
 	}
 
+	// PUBLIC_INTERFACE
 	@ModelAttribute("role")
+	/**
+	 * Provides the list of authorities/roles for form select fields.
+	 *
+	 * @return list of Authorities.
+	 */
 	public List<Authorities> list() {
 		return authorityService.list();
 	}
 
-	@RequestMapping(value = "/webrst/change/changePassword", method = RequestMethod.POST)
-	public String getUser(HttpServletRequest request, String oldPassword, String newPassword,
-			HttpServletResponse response) {
+	// PUBLIC_INTERFACE
+	@PostMapping(value = "/webrst/change/changePassword")
+	/**
+	 * Change password for current authenticated user (state-changing action). CSRF token is required.
+	 *
+	 * @param request HttpServletRequest
+	 * @param oldPassword old password from form
+	 * @param newPassword new password from form
+	 * @param response HttpServletResponse
+	 * @return redirect to /home
+	 */
+	public String getUser(HttpServletRequest request, String oldPassword, String newPassword, HttpServletResponse response) {
 		try {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			User user = userService.findUserByName(authentication.getName());

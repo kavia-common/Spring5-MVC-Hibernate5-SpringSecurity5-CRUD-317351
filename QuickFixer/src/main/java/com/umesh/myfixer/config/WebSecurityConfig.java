@@ -35,6 +35,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	     .and()
 	     .logout().permitAll() // Permitted to all user
 	     .and()
-	     .csrf().disable().exceptionHandling().accessDeniedPage("/access-denied");
+	     // CSRF is enabled by default in Spring Security. Do not disable it globally.
+	     .exceptionHandling().accessDeniedPage("/access-denied");
   }
 }

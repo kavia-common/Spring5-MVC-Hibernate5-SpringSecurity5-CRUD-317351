@@ -280,6 +280,7 @@
 				<div class="col-lg-7 contact-right">
 					<form class="form-area" id="myForm" action="sendMail" method="post"
 						class="contact-form text-right">
+						<security:csrfInput />
 						<input name="fname" placeholder="Enter your name"
 							onfocus="this.placeholder = ''"
 							onblur="this.placeholder = 'Enter your name'"

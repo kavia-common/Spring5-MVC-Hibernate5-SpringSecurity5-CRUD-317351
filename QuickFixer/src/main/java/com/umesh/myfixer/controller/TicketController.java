@@ -6,8 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -25,7 +26,14 @@ public class TicketController {
 	@Autowired
 	UserService userService;
 
-	@RequestMapping(value = "/webrst/ticketForm")
+	// PUBLIC_INTERFACE
+	@GetMapping(value = "/webrst/ticketForm")
+	/**
+	 * Render ticket create/edit form.
+	 *
+	 * @param ticketId optional ticket id to edit.
+	 * @return ModelAndView for the post-login content page with the ticket form displayed.
+	 */
 	public ModelAndView showTicketForm(@RequestParam(required = false) Integer ticketId) {
 		int userId = this.getLoggedUser();
 		ModelAndView mav = new ModelAndView("postLoginContent");
@@ -41,16 +49,30 @@ public class TicketController {
 		return mav;
 	}
 
-	@RequestMapping("/webrst/saveTicketData")
+	// PUBLIC_INTERFACE
+	@PostMapping("/webrst/saveTicketData")
+	/**
+	 * Create or update a ticket (state-changing action). CSRF token is required.
+	 *
+	 * @param ticket ticket model bound from form submission.
+	 * @return redirect to the ticket list page.
+	 */
 	public String saveTicket(@ModelAttribute("ticket") Ticket ticket) {
 		if (ticket.getId() == null) {
 			ticket.setCreatedDate(new java.sql.Timestamp(new Date().getTime()));
-		} 
+		}
 		ticketService.save(ticket);
 		return "redirect:ticket";
 	}
 
-	@RequestMapping(value = "/webrst/editTicket")
+	// PUBLIC_INTERFACE
+	@GetMapping(value = "/webrst/editTicket")
+	/**
+	 * Render ticket edit page for a given ticket id (read-only render).
+	 *
+	 * @param id ticket id.
+	 * @return ModelAndView for the post-login content page with the ticket form displayed.
+	 */
 	public ModelAndView editTicket(@RequestParam("id") int id) {
 		ModelAndView mav = new ModelAndView("postLoginContent");
 		mav.addObject("ticket", ticketService.get(id));
@@ -59,7 +81,15 @@ public class TicketController {
 		return mav;
 	}
 
-	@RequestMapping(value = "/webrst/deleteTicket")
+	// PUBLIC_INTERFACE
+	@PostMapping(value = "/webrst/deleteTicket")
+	/**
+	 * Delete a ticket (state-changing action). Uses POST to support classic JSP forms.
+	 * CSRF token is required.
+	 *
+	 * @param id ticket id.
+	 * @return redirect to the ticket list page.
+	 */
 	public String deleteTicket(@RequestParam("id") int id) {
 		ticketService.delete(id);
 		return "redirect:ticket";

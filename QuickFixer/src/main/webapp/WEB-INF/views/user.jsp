@@ -1,4 +1,5 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="security" uri="http://www.springframework.org/security/tags"%>
 <div class="row">
 	<div class="col-md-12">
 		<ul class="breadcrumb">
@@ -30,12 +31,21 @@
 								href="${contextRoot}/webrst/ticket?userId=${user.id}"
 								data-toggle="tooltip" title="User History"><i
 									class="fa fa-history" aria-hidden="true"></i></a></td>
-							<td><a
-								href="${contextRoot}/webrst/editUser?id=${user.id}"
-								data-toggle="tooltip" title="Edit"><i
-									class="fa fa-pencil-square-o" aria-hidden="true"></i></a> | <a href="${contextRoot}/webrst/deleteUser?id=${user.id}"
-								data-toggle="tooltip" title="Delete"><i class="fa fa-trash"
-									aria-hidden="true"></i></a></td>
+							<td>
+								<a
+									href="${contextRoot}/webrst/editUser?id=${user.id}"
+									data-toggle="tooltip" title="Edit"><i
+										class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+								|
+								<form action="${contextRoot}/webrst/deleteUser" method="post" style="display:inline;">
+									<security:csrfInput />
+									<input type="hidden" name="id" value="${user.id}" />
+									<button type="submit" class="btn btn-link p-0" data-toggle="tooltip" title="Delete"
+										style="vertical-align: baseline;">
+										<i class="fa fa-trash" aria-hidden="true"></i>
+									</button>
+								</form>
+							</td>
 						</tr>
 					</c:forEach>
 				</tbody>
